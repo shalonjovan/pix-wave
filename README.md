@@ -1,4 +1,4 @@
-# Pix-Wave 🎶🟩
+# Pix-Wave 🎶
 
 Pix-Wave is a **real-time audio spectrum visualizer** that turns music into a **pixel-based frequency wave**.
 
@@ -25,13 +25,13 @@ It captures live audio (Spotify, browser music, or system audio on Linux), analy
 ## 🖼️ Screenshots
 
 ### 🔥 Fire Theme
-![Fire Theme](_screenshots/fire.png)
+![Fire Theme](screenshots/fire.png)
 
 ### ❄️ Ice Theme
 ![Ice Theme](screenshots/ice.png)
 
 ### 🚦 Traffic Lights Theme
-![Traffic Lights Theme](screenshots/traffic_lights.png)
+![Traffic Lights Theme](screenshots/traffic.png)
 
 ### 🌟 Neon Theme
 ![Neon Theme](screenshots/neon.png)
