@@ -46,7 +46,7 @@ THEMES = {
 
 
 # ================= ACTIVE THEME =================
-ACTIVE_THEME = "neon"   # "traffic_lights", "ice", "fire"
+ACTIVE_THEME = "ice"   # "traffic_lights", "ice", "fire"
 
 COLOR_LOW = THEMES[ACTIVE_THEME]["low"]
 COLOR_MID = THEMES[ACTIVE_THEME]["mid"]
