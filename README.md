@@ -132,17 +132,6 @@ python main.py
 
 ---
 
-## 🚀 Ideas for Future Improvements
-
-- Stereo (L/R) split visualization
-- Mirror & symmetry modes
-- Glow / bloom effects
-- Circular spectrum
-- OpenGL / GPU renderer
-- Beat detection
-
----
-
 ## 📜 License
 
 MIT License — free to use, modify, and learn from.
