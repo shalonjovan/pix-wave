@@ -6,24 +6,24 @@ It captures live audio (Spotify, browser music, or system audio on Linux), analy
 
 ---
 
-## ✨ Features
+## Features
 
-- 🎧 Live audio input (PipeWire / PulseAudio)
-- 📊 FFT-based frequency analysis
-- 📐 Logarithmic frequency scaling
-- 🟩 Pixel-style retro visualization
-- 🎨 Multiple color themes
+- Live audio input (PipeWire / PulseAudio)
+- FFT-based frequency analysis
+- Logarithmic frequency scaling
+- Pixel-style retro visualization
+- Multiple color themes
   - Fire
   - Ice
   - Traffic Lights
   - Neon
-- ⬇️ Smooth decay and motion
-- ⚙️ Fully configurable via `config.py`
-- 🧱 Clean, modular codebase
+- Smooth decay and motion
+- Fully configurable via `config.py`
+- Clean, modular codebase
 
 ---
 
-## 🖼️ Screenshots
+## Screenshots
 
 ### 🔥 Fire Theme
 ![Fire Theme](screenshots/fire.png)
@@ -39,7 +39,7 @@ It captures live audio (Spotify, browser music, or system audio on Linux), analy
 
 ---
 
-## 🧠 How It Works (Quick Overview)
+## How It Works (Quick Overview)
 
 ```
 Audio Output
@@ -100,7 +100,7 @@ No other files need editing.
 
 ---
 
-## ▶️ Running Pix-Wave
+## Running Pix-Wave
 
 ### 1️⃣ Install dependencies
 
