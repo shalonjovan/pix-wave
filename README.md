@@ -16,6 +16,7 @@ It captures live audio (Spotify, browser music, or system audio on Linux), analy
   - Fire
   - Ice
   - Traffic Lights
+  - Neon
 - ⬇️ Smooth decay and motion
 - ⚙️ Fully configurable via `config.py`
 - 🧱 Clean, modular codebase
