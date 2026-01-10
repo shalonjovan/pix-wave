@@ -6,12 +6,31 @@ audio_buffer = np.zeros(config.FFT_SIZE)
 window = np.hanning(config.FFT_SIZE)
 
 
-def find_spotify_device():
+def find_music_device():
+    preferred_names = [
+        "spotify",     # native Spotify
+        "chromium",    # Spotify Web / YouTube Music
+        "firefox",
+    ]
+
+    fallback_devices = []
+
     for i, dev in enumerate(sd.query_devices()):
-        if "spotify" in dev["name"].lower() and dev["max_input_channels"] > 0:
-            print("Using Spotify stream:", dev["name"])
+        name = dev["name"].lower()
+        if dev["max_input_channels"] > 0:
+            for preferred in preferred_names:
+                if preferred in name:
+                    print(f"Using app stream: {dev['name']}")
+                    return i
+            fallback_devices.append((i, dev["name"]))
+
+    # fallback to PipeWire/system audio
+    for i, name in fallback_devices:
+        if "pipewire" in name.lower() or "default" in name.lower():
+            print(f"Using system audio: {name}")
             return i
-    raise RuntimeError("Spotify stream not found. Play a song first.")
+
+    raise RuntimeError("No suitable audio input found.")
 
 
 def audio_callback(indata, frames, time, status):
@@ -22,7 +41,7 @@ def audio_callback(indata, frames, time, status):
 
 
 def start_audio_stream():
-    device_index = find_spotify_device()
+    device_index = find_music_device()
 
     stream = sd.InputStream(
         device=device_index,
