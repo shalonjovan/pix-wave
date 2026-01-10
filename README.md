@@ -129,9 +129,3 @@ python main.py
   - Browser audio (Chromium / Firefox)
   - Falls back to system audio if needed
 - No manual audio setup required
-
----
-
-## 📜 License
-
-MIT License — free to use, modify, and learn from.
