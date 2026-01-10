@@ -25,16 +25,16 @@ It captures live audio (Spotify, browser music, or system audio on Linux), analy
 ## 🖼️ Screenshots
 
 ### 🔥 Fire Theme
-![Fire Theme](__screenshots/fire.png__)
+![Fire Theme](_screenshots/fire.png)
 
 ### ❄️ Ice Theme
-![Ice Theme](__screenshots/ice.png__)
+![Ice Theme](screenshots/ice.png)
 
 ### 🚦 Traffic Lights Theme
-![Traffic Lights Theme](__screenshots/traffic_lights.png__)
+![Traffic Lights Theme](screenshots/traffic_lights.png)
 
 ### 🌟 Neon Theme
-![Neon Theme](__screenshots/neon.png__)
+![Neon Theme](screenshots/neon.png)
 
 ---
 
