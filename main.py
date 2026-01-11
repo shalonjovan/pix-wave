@@ -12,9 +12,13 @@ bar_levels = np.zeros(config.NUM_BARS)
 
 # ================= INIT PYGAME =================
 pygame.init()
+visualizer.init_visualizer()
+
 WIDTH = config.NUM_BARS * (config.PIXEL_SIZE + config.PIXEL_GAP)
 screen = pygame.display.set_mode((WIDTH, config.WINDOW_HEIGHT))
 clock = pygame.time.Clock()
+
+active_theme = config.DEFAULT_THEME
 
 # ================= MAIN LOOP =================
 running = True
@@ -25,10 +29,15 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            active_theme = visualizer.handle_menu_click(
+                event.pos, active_theme
+            )
+
     new_levels = audio.compute_spectrum(freqs, band_edges)
     bar_levels = np.maximum(new_levels, bar_levels * config.DECAY)
 
-    visualizer.draw_bars(screen, bar_levels)
+    visualizer.draw_bars(screen, bar_levels, active_theme)
 
 # ================= CLEANUP =================
 stream.stop()

@@ -46,11 +46,11 @@ THEMES = {
 
 
 # ================= ACTIVE THEME =================
-ACTIVE_THEME = "neon"   # "traffic_lights", "ice", "fire"
+DEFAULT_THEME = "neon"   # "traffic_lights", "ice", "fire"
 
-COLOR_LOW = THEMES[ACTIVE_THEME]["low"]
-COLOR_MID = THEMES[ACTIVE_THEME]["mid"]
-COLOR_HIGH = THEMES[ACTIVE_THEME]["high"]
+COLOR_LOW = THEMES[DEFAULT_THEME]["low"]
+COLOR_MID = THEMES[DEFAULT_THEME]["mid"]
+COLOR_HIGH = THEMES[DEFAULT_THEME]["high"]
 
 LOW_COLOR_THRESHOLD = 0.6
 MID_COLOR_THRESHOLD = 0.85
