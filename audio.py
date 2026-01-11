@@ -2,63 +2,91 @@ import numpy as np
 import sounddevice as sd
 import config
 
+# ================= AUDIO BUFFER =================
 audio_buffer = np.zeros(config.FFT_SIZE)
 window = np.hanning(config.FFT_SIZE)
 
 
-def find_music_device():
-    preferred_names = [
-        "spotify",     # native Spotify
-        "chromium",    # Spotify Web / YouTube Music
-        "firefox",
-    ]
+# ================= DEVICE SELECTION =================
+def find_audio_device():
+    """
+    Priority:
+    1. Per-application streams (Spotify / browser)
+    2. Output monitor / loopback (what you actually hear)
+    3. Last-resort system defaults
+    """
 
-    fallback_devices = []
+    preferred_apps = ["spotify", "chromium", "firefox"]
+    monitor_keywords = ["monitor", "pipewire"]
+    fallback_keywords = ["default", "sysdefault"]
+
+    inputs = []
 
     for i, dev in enumerate(sd.query_devices()):
-        name = dev["name"].lower()
-        if dev["max_input_channels"] > 0:
-            for preferred in preferred_names:
-                if preferred in name:
-                    print(f"Using app stream: {dev['name']}")
-                    return i
-            fallback_devices.append((i, dev["name"]))
+        if dev["max_input_channels"] <= 0:
+            continue
 
-    # fallback to PipeWire/system audio
-    for i, name in fallback_devices:
-        if "pipewire" in name.lower() or "default" in name.lower():
-            print(f"Using system audio: {name}")
-            return i
+        name = dev["name"]
+        lname = name.lower()
+        inputs.append((i, name, lname))
 
-    raise RuntimeError("No suitable audio input found.")
+        # per-app streams
+        for app in preferred_apps:
+            if app in lname:
+                print(f"Using app audio: {name}")
+                return i
+
+    # output monitor / loopback
+    for i, name, lname in inputs:
+        for kw in monitor_keywords:
+            if kw in lname:
+                print(f"Using output monitor: {name}")
+                return i
+
+    # last-resort fallback
+    for i, name, lname in inputs:
+        for kw in fallback_keywords:
+            if kw in lname:
+                print(f"Using fallback audio: {name}")
+                return i
+
+    raise RuntimeError("No usable audio input found.")
 
 
+# ================= AUDIO CALLBACK =================
 def audio_callback(indata, frames, time, status):
     global audio_buffer
+
+    # Convert stereo → mono
     mono = np.mean(indata, axis=1)
+
+    # Rolling buffer
     audio_buffer = np.roll(audio_buffer, -len(mono))
     audio_buffer[-len(mono):] = mono
 
 
+# ================= STREAM CONTROL =================
 def start_audio_stream():
-    device_index = find_music_device()
+    device_index = find_audio_device()
 
     stream = sd.InputStream(
         device=device_index,
         channels=2,
         samplerate=config.SAMPLE_RATE,
         blocksize=512,
-        callback=audio_callback
+        callback=audio_callback,
     )
+
     stream.start()
     return stream
 
 
+# ================= FFT SETUP =================
 def setup_frequency_bands():
     freqs = np.fft.rfftfreq(
         config.FFT_SIZE,
         1 / config.SAMPLE_RATE
-    )[1:]  # drop DC
+    )[1:]  # drop DC bin
 
     band_edges = np.logspace(
         np.log10(config.LOW_FREQ),
@@ -69,10 +97,11 @@ def setup_frequency_bands():
     return freqs, band_edges
 
 
+# ================= SPECTRUM =================
 def compute_spectrum(freqs, band_edges):
     samples = audio_buffer * window
     fft = np.fft.rfft(samples)
-    magnitudes = np.abs(fft)[1:]
+    magnitudes = np.abs(fft)[1:]  # drop DC
 
     levels = np.zeros(config.NUM_BARS)
 
