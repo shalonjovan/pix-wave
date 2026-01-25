@@ -49,7 +49,7 @@ All customization is done in **`config.py`**.
 ```python
 DEFAULT_THEME = "fire"   # fire | ice | traffic_lights | neon
 
-### DSP & visual tuning
+DSP & visual tuning
 ```python
 FFT_SIZE = 4096
 LOW_FREQ = 300
