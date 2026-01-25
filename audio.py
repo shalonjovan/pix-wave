@@ -7,14 +7,12 @@ audio_buffer = np.zeros(config.FFT_SIZE)
 window = np.hanning(config.FFT_SIZE)
 
 
-# ================= DEVICE SELECTION =================
-def find_audio_device():
-    """
-    Priority:
-    1. Per-application streams (Spotify / browser)
-    2. Output monitor / loopback (what you actually hear)
-    3. Last-resort system defaults
-    """
+def find_music_device():
+    preferred_names = [
+        "spotify",     
+        "chromium",    
+        "firefox",
+    ]
 
     preferred_apps = ["spotify", "chromium", "firefox"]
     monitor_keywords = ["monitor", "pipewire"]
@@ -43,12 +41,10 @@ def find_audio_device():
                 print(f"Using output monitor: {name}")
                 return i
 
-    # last-resort fallback
-    for i, name, lname in inputs:
-        for kw in fallback_keywords:
-            if kw in lname:
-                print(f"Using fallback audio: {name}")
-                return i
+    for i, name in fallback_devices:
+        if "pipewire" in name.lower() or "default" in name.lower():
+            print(f"Using system audio: {name}")
+            return i
 
     raise RuntimeError("No usable audio input found.")
 
@@ -114,7 +110,6 @@ def compute_spectrum(freqs, band_edges):
         if len(idx) > 0:
             levels[i] = np.mean(magnitudes[idx])
 
-    # perceptual compression + fixed gain
     levels = np.log10(levels + 1)
     levels *= config.GAIN
 

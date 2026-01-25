@@ -1,76 +1,80 @@
-import pygame
+from textual.widget import Widget
+from rich.style import Style
+from rich.text import Text
 import config
+import math
 
-FONT = None
-MENU_HEIGHT = 30
-MENU_BG = (20, 20, 20)
-TEXT_COLOR = (220, 220, 220)
+DOT = "."
 
 
-def init_visualizer():
-    global FONT
-    FONT = pygame.font.SysFont("monospace", 16)
+class SpectrumWidget(Widget):
+    def __init__(self):
+        super().__init__()
+        self.levels = None
+        self.active_theme = config.DEFAULT_THEME
 
+        self.vertical_density = 1.8  
+        self.headroom = 0.65        
+        self.gamma = 0.65             
 
-def get_theme_colors(theme):
-    t = config.THEMES[theme]
-    return t["low"], t["mid"], t["high"]
+    def set_levels(self, levels):
+        self.levels = levels
+        self.refresh()
 
+    def set_theme(self, theme):
+        self.active_theme = theme
+        self.refresh()
 
-def get_color(progress, colors):
-    low, mid, high = colors
-    if progress < config.LOW_COLOR_THRESHOLD:
-        return low
-    elif progress < config.MID_COLOR_THRESHOLD:
-        return mid
-    return high
+    def get_color(self, progress, colors):
+        low, mid, high = colors
+        if progress < config.LOW_COLOR_THRESHOLD:
+            return low
+        elif progress < config.MID_COLOR_THRESHOLD:
+            return mid
+        return high
 
+    def render(self):
+        if self.levels is None or len(self.levels) == 0:
+            return ""
 
-def draw_menu(screen, active_theme):
-    x = 10
-    for theme in config.THEMES.keys():
-        text = FONT.render(theme, True, TEXT_COLOR)
-        rect = text.get_rect(topleft=(x, 5))
-        screen.blit(text, rect)
+        width = self.size.width
+        height = self.size.height
 
-        if theme == active_theme:
-            pygame.draw.rect(screen, (255, 255, 255), rect, 1)
+        theme = config.THEMES[self.active_theme]
+        low, mid, high = theme["low"], theme["mid"], theme["high"]
 
-        x += rect.width + 15
+        fft_len = len(self.levels)
 
+        max_height = int(height * self.headroom)
 
-def handle_menu_click(pos, active_theme):
-    x = 10
-    for theme in config.THEMES.keys():
-        text = FONT.render(theme, True, TEXT_COLOR)
-        rect = text.get_rect(topleft=(x, 5))
-        if rect.collidepoint(pos):
-            return theme
-        x += rect.width + 15
-    return active_theme
+        text = Text()
 
+        for row in range(height):
+            y = height - 1 - row
 
-def draw_bars(screen, bar_levels, active_theme):
-    colors = get_theme_colors(active_theme)
-    screen.fill((0, 0, 0))
+            for col in range(width):
+                fft_index = int(col * fft_len / width)
+                level = float(self.levels[fft_index])
 
-    draw_menu(screen, active_theme)
+                level = math.pow(level, self.gamma)
 
-    for i, level in enumerate(bar_levels):
-        pixels = int(
-            (level * config.WINDOW_HEIGHT) //
-            (config.PIXEL_SIZE + config.PIXEL_GAP)
-        )
-        x = i * (config.PIXEL_SIZE + config.PIXEL_GAP)
-        for p in range(pixels):
-            y = config.WINDOW_HEIGHT - (p + 1) * (
-                config.PIXEL_SIZE + config.PIXEL_GAP
-            )
-            color = get_color(p / max(1, pixels), colors)
-            pygame.draw.rect(
-                screen,
-                color,
-                (x, y, config.PIXEL_SIZE, config.PIXEL_SIZE)
-            )
+                bar_height = int(
+                    level * max_height * self.vertical_density
+                )
 
-    pygame.display.flip()
+                if y < bar_height:
+                    progress = y / max(1, bar_height)
+                    color = self.get_color(progress, (low, mid, high))
+
+                    style = Style(
+                        color=f"rgb({color[0]},{color[1]},{color[2]})",
+                        bold=True  
+                    )
+
+                    text.append(DOT, style=style)
+                else:
+                    text.append(" ")
+
+            text.append("\n")
+
+        return text
