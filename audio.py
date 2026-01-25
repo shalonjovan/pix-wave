@@ -8,8 +8,8 @@ window = np.hanning(config.FFT_SIZE)
 
 def find_music_device():
     preferred_names = [
-        "spotify",     # native Spotify
-        "chromium",    # Spotify Web / YouTube Music
+        "spotify",     
+        "chromium",    
         "firefox",
     ]
 
@@ -24,7 +24,6 @@ def find_music_device():
                     return i
             fallback_devices.append((i, dev["name"]))
 
-    # fallback to PipeWire/system audio
     for i, name in fallback_devices:
         if "pipewire" in name.lower() or "default" in name.lower():
             print(f"Using system audio: {name}")
@@ -85,7 +84,6 @@ def compute_spectrum(freqs, band_edges):
         if len(idx) > 0:
             levels[i] = np.mean(magnitudes[idx])
 
-    # perceptual compression + fixed gain
     levels = np.log10(levels + 1)
     levels *= config.GAIN
 

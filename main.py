@@ -1,44 +1,59 @@
-import pygame
+from textual.app import App, ComposeResult
+from textual.containers import Vertical
+from textual.widgets import Static
 import numpy as np
 import config
 import audio
-import visualizer
+from visualizer import SpectrumWidget
 
-# ================= INIT AUDIO =================
-stream = audio.start_audio_stream()
-freqs, band_edges = audio.setup_frequency_bands()
 
-bar_levels = np.zeros(config.NUM_BARS)
+class VisualizerApp(App):
+    CSS_PATH = "styles.tcss"
 
-# ================= INIT PYGAME =================
-pygame.init()
-visualizer.init_visualizer()
+    def compose(self) -> ComposeResult:
+        self.spectrum = SpectrumWidget()
+        self.footer = Static(
+            "1: traffic  2: ice  3: fire  4: neon   |   Q: quit"
+        )
+        self.footer.add_class("footer")
 
-WIDTH = config.NUM_BARS * (config.PIXEL_SIZE + config.PIXEL_GAP)
-screen = pygame.display.set_mode((WIDTH, config.WINDOW_HEIGHT))
-clock = pygame.time.Clock()
+        yield Vertical(
+            self.spectrum,
+            self.footer
+        )
 
-active_theme = config.DEFAULT_THEME
+    def on_mount(self):
+        self.stream = audio.start_audio_stream()
+        self.freqs, self.band_edges = audio.setup_frequency_bands()
+        self.bar_levels = np.zeros(config.NUM_BARS)
 
-# ================= MAIN LOOP =================
-running = True
-while running:
-    clock.tick(config.FPS)
+        self.set_interval(1 / config.FPS, self.update_visualizer)
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+    def update_visualizer(self):
+        new_levels = audio.compute_spectrum(self.freqs, self.band_edges)
+        self.bar_levels = np.maximum(
+            new_levels,
+            self.bar_levels * config.DECAY
+        )
+        self.spectrum.set_levels(self.bar_levels)
 
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            active_theme = visualizer.handle_menu_click(
-                event.pos, active_theme
-            )
+    def on_key(self, event):
+        if event.key == "q":
+            self.exit()
 
-    new_levels = audio.compute_spectrum(freqs, band_edges)
-    bar_levels = np.maximum(new_levels, bar_levels * config.DECAY)
+        theme_map = {
+            "1": "traffic_lights",
+            "2": "ice",
+            "3": "fire",
+            "4": "neon",
+        }
 
-    visualizer.draw_bars(screen, bar_levels, active_theme)
+        if event.key in theme_map:
+            self.spectrum.set_theme(theme_map[event.key])
 
-# ================= CLEANUP =================
-stream.stop()
-pygame.quit()
+    def on_shutdown(self):
+        self.stream.stop()
+
+
+if __name__ == "__main__":
+    VisualizerApp().run()

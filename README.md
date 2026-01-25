@@ -1,99 +1,61 @@
-# Pix-Wave 🎶
+# Pix-Wave 
 
-Pix-Wave is a **real-time audio spectrum visualizer** that turns music into a **pixel-based frequency wave**.
+Pix-Wave is a **real-time terminal-based audio spectrum visualizer** that turns music into a **pixel-style frequency wave**.
 
-It captures live audio (Spotify, browser music, or system audio on Linux), analyzes it using **FFT**, and renders a smooth, animated pixel equalizer with customizable color themes.
+It captures live system audio on Linux, analyzes it using **FFT**, and renders a smooth, animated **dot-matrix equalizer** directly in the terminal using **Textual + Rich**.
 
 ---
 
 ## Features
 
-- Live audio input (PipeWire / PulseAudio)
+- Live system audio capture (PipeWire / PulseAudio)
 - FFT-based frequency analysis
-- Logarithmic frequency scaling
-- Pixel-style retro visualization
-- Multiple color themes
+- Logarithmic frequency band scaling
+- Retro **dot-matrix / pixel-style** visualization
+- Multiple color themes:
   - Fire
   - Ice
   - Traffic Lights
   - Neon
 - Smooth decay and motion
+- Headroom + soft peak handling
 - Fully configurable via `config.py`
-- Clean, modular codebase
+- Runs entirely inside the terminal 
 
 ---
 
 ## Screenshots
 
 ### 🔥 Fire Theme
-![Fire Theme](screenshots/fire.png)
+![Fire Theme](screenshots/fire-t.png)
 
 ### ❄️ Ice Theme
-![Ice Theme](screenshots/ice.png)
+![Ice Theme](screenshots/ice-t.png)
 
 ### 🚦 Traffic Lights Theme
-![Traffic Lights Theme](screenshots/traffic.png)
+![Traffic Lights Theme](screenshots/traffic-t.png)
 
 ### 🌟 Neon Theme
-![Neon Theme](screenshots/neon.png)
+![Neon Theme](screenshots/neon-t.png)
 
 ---
 
-## How It Works (Quick Overview)
-
-```
-Audio Output
-    ↓
-PipeWire / PulseAudio
-    ↓
-PCM Samples
-    ↓
-FFT (frequency analysis)
-    ↓
-Log-scaled frequency bands
-    ↓
-Amplitude compression + decay
-    ↓
-Pixel bars on screen
-```
-
-Each frame visualizes the **energy of different frequency ranges** in real time.
-
----
-
-## 📁 Project Structure
-
-```
-pix-wave/
-├── main.py         # Program entry point
-├── audio.py        # Audio capture & FFT logic
-├── visualizer.py   # Rendering logic
-├── config.py       # All configuration & themes
-├── requirements.txt
-├── screenshots/    # Screenshots used in README
-└── experiments/    # (optional) early tests
-```
-
----
-
-## ⚙️ Configuration
+## Configuration
 
 All customization is done in **`config.py`**.
 
 ### Change color theme
 
 ```python
-ACTIVE_THEME = "fire"   # fire | ice | traffic_lights
-```
+DEFAULT_THEME = "fire"   # fire | ice | traffic_lights | neon
 
-### Tune visuals & DSP
-
+### DSP & visual tuning
 ```python
 FFT_SIZE = 4096
 LOW_FREQ = 300
-GAIN = 0.15
+HIGH_FREQ = 20000
+GAIN = 0.35
 DECAY = 0.85
-PIXEL_SIZE = 4
 ```
 
 No other files need editing.
@@ -102,31 +64,47 @@ No other files need editing.
 
 ## Running Pix-Wave
 
-### 1️⃣ Install dependencies
-
+### Setup (first time only)
 ```bash
-pip install -r requirements.txt
+./setup.sh
 ```
 
-### 2️⃣ Play some music
+This will:
+- Create a virtual environment
+- Activate it
+- Install all dependencies
 
+### Play some music
+Pix-Wave listens to system audio, including:
 - Spotify (app or web)
 - YouTube / browser audio
-- Any system audio
+- Any application producing sound
 
-### 3️⃣ Run
-
+### Run
 ```bash
-python main.py
+./run.sh
 ```
 
----
 
-## 🐧 Linux Audio Notes
+## Linux Audio Notes
 
-- Designed for PipeWire
+- Designed specifically for **Linux**
+- Uses **PipeWire** / **PulseAudio**
 - Automatically detects:
   - Spotify
   - Browser audio (Chromium / Firefox)
-  - Falls back to system audio if needed
-- No manual audio setup required
+  - Falls back to default system audio
+- No manual audio routing required
+
+---
+
+
+## Dependencies
+
+- Python 3.8+
+- PyAudio
+- NumPy
+- Textual
+- Rich
+
+---
