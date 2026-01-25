@@ -8,12 +8,6 @@ window = np.hanning(config.FFT_SIZE)
 
 
 def find_music_device():
-    preferred_names = [
-        "spotify",     
-        "chromium",    
-        "firefox",
-    ]
-
     preferred_apps = ["spotify", "chromium", "firefox"]
     monitor_keywords = ["monitor", "pipewire"]
     fallback_keywords = ["default", "sysdefault"]
@@ -28,23 +22,25 @@ def find_music_device():
         lname = name.lower()
         inputs.append((i, name, lname))
 
-        # per-app streams
+        # Prefer per-app streams
         for app in preferred_apps:
             if app in lname:
                 print(f"Using app audio: {name}")
                 return i
 
-    # output monitor / loopback
+    # Try PipeWire / monitor devices
     for i, name, lname in inputs:
         for kw in monitor_keywords:
             if kw in lname:
                 print(f"Using output monitor: {name}")
                 return i
 
-    for i, name in fallback_devices:
-        if "pipewire" in name.lower() or "default" in name.lower():
-            print(f"Using system audio: {name}")
-            return i
+    # Fallback to default input
+    for i, name, lname in inputs:
+        for kw in fallback_keywords:
+            if kw in lname:
+                print(f"Using system audio: {name}")
+                return i
 
     raise RuntimeError("No usable audio input found.")
 
@@ -53,17 +49,14 @@ def find_music_device():
 def audio_callback(indata, frames, time, status):
     global audio_buffer
 
-    # Convert stereo → mono
     mono = np.mean(indata, axis=1)
-
-    # Rolling buffer
     audio_buffer = np.roll(audio_buffer, -len(mono))
     audio_buffer[-len(mono):] = mono
 
 
 # ================= STREAM CONTROL =================
 def start_audio_stream():
-    device_index = find_audio_device()
+    device_index = find_music_device()
 
     stream = sd.InputStream(
         device=device_index,
@@ -82,7 +75,7 @@ def setup_frequency_bands():
     freqs = np.fft.rfftfreq(
         config.FFT_SIZE,
         1 / config.SAMPLE_RATE
-    )[1:]  # drop DC bin
+    )[1:]  # drop DC
 
     band_edges = np.logspace(
         np.log10(config.LOW_FREQ),
@@ -97,7 +90,7 @@ def setup_frequency_bands():
 def compute_spectrum(freqs, band_edges):
     samples = audio_buffer * window
     fft = np.fft.rfft(samples)
-    magnitudes = np.abs(fft)[1:]  # drop DC
+    magnitudes = np.abs(fft)[1:]
 
     levels = np.zeros(config.NUM_BARS)
 
