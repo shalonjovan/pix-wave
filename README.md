@@ -95,7 +95,7 @@ Pix-Wave listens to system audio, including:
   - Browser audio (Chromium / Firefox)
   - Falls back to default system audio
 - No manual audio routing required
-
+this doesn't work for other oses
 ---
 
 
